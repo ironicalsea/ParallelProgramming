@@ -1,0 +1,57 @@
+﻿
+
+
+//
+			var inputLines = new BlockingCollection<string>();
+            var processedLines = new BlockingCollection<string>();
+
+            // read #1
+            var
+            readLines = Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    foreach (var line in File.ReadLines(inputPath))
+                    {
+                        inputLines.Add(line);
+                    }
+                }
+                finally
+                {
+                    inputLines.CompleteAdding();
+                }
+            });
+
+            // process #2
+            var
+            processLines = Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    foreach(var line in inputLines
+                        .GetConsumingEnumerable()
+                        .Select(line => Regex.Replace(line, @"\s+", ", ")))
+                    {
+                        processedLines.Add(line);
+                    }
+                }
+                finally
+                {
+                    processedLines.CompleteAdding();
+                }
+            });
+            
+            // write #3
+            var writeLines = Task.Factory.StartNew(() =>
+            {
+                File.WriteAllLines(outputPath, processedLines.GetConsumingEnumerable());
+            });
+            Task.WaitAll(readLines, processLines, writeLines);
+
+
+
+
+
+//
+.AsParallel()
+.AsOrdered()

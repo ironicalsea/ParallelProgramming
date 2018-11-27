@@ -1,0 +1,10 @@
+﻿// Main			
+			var mr = new MapReducePattern();
+            foreach(var ws in  mr
+                    .GetWordStatistics(args[0], args.Length > 1 ? args[1]: "*.*")
+                    .OrderByDescending(ws=>ws.Count))
+            {
+                Console.WriteLine($"{ws.Word}\t{ws.Count}");
+            }
+                
+            Console.ReadKey();

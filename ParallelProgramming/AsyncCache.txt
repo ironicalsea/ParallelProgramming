@@ -1,0 +1,56 @@
+﻿// Main
+			var provider = new AsyncCachedSearchProvider(new AsyncSearchProvider());
+            for (int i = 0; i < 5; i++)
+            {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                string searchResult = null;
+                try
+                {
+                    searchResult = provider.SearchAsync("c#").Result;
+                }
+                catch
+                {
+                    searchResult = string.Empty;
+                }
+
+                Console.WriteLine($"{i}. Recieved search result of {searchResult.Length} length, {stopwatch.ElapsedMilliseconds}ms");
+            }
+
+
+            Console.ReadKey();
+            return;
+
+
+
+// Cache 1
+			if (_cache.TryGetValue(text, out var searchResult))
+            {
+                return await searchResult.ConfigureAwait(false);
+            }
+
+            searchResult = _provider.SearchAsync(text);
+            _cache[text] = searchResult;
+            return await searchResult.ConfigureAwait(false);
+
+// Exception
+			if(counter == 1)
+			{
+				throw new TimeoutException();
+			}
+
+// Cache 2
+
+			searchResult = _provider.SearchAsync(text);
+
+			await searchResult.ContinueWith(
+				successSearchResult => 
+				{
+					_cache[text] = successSearchResult;
+				}, 
+				TaskContinuationOptions.OnlyOnRanToCompletion);
+
+            
+			return await searchResult;
+
